@@ -191,6 +191,11 @@ export default function Index({ tenants, can }: IndexProps) {
                                 </Link>
                                 </DropdownMenuItem>
                             )}
+                            <DropdownMenuItem asChild>
+                                <Link href={route("tenants.users.index", tenant.id)}>
+                                <Users className="h-4 w-4 mr-2" /> Users
+                                </Link>
+                            </DropdownMenuItem>
                             {can.delete && (
                                 <DropdownMenuItem
                                 className="text-red-600"

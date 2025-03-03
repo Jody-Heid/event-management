@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::resource('tenants' ,TenantController::class);
+    Route::resource('tenants.users' ,UserController::class);
 });
 
 require __DIR__.'/settings.php';
