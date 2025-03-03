@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class TenantStoreRequest extends FormRequest
+class TenantUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +24,9 @@ class TenantStoreRequest extends FormRequest
     {
         return [
             'tenantName' => ['required' , 'string'],
+            'tenantEmail' => ['required' , 'email' , Rule::unique('tenants' , 'email')->ignore($this->tenant->id)],
             'tenantDescription' => ['nullable' , 'string'],
             'tenantLogoPath' => ['nullable', 'image', 'max:2048'],
-            'userFullName' => ['required' , 'string'],
-            'userEmail' => ['required' , 'email' , 'unique:users,email'],
             'is_active' => ['required' , 'boolean']
         ];
     }

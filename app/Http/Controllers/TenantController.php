@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\TenantStoreRequest;
+use App\Http\Requests\TenantUpdateRequest;
 
 class TenantController extends Controller
 {
@@ -19,8 +20,8 @@ class TenantController extends Controller
         $tenants = Tenant::query()
         ->withCount('users')
         ->orderBy('name')
-        ->paginate(9);
-        
+        ->paginate(10);
+
         return Inertia::render('tenants/index', [
             'tenants' => $tenants,
             'can' => [
@@ -44,13 +45,14 @@ class TenantController extends Controller
      */
     public function store(TenantStoreRequest $request)
     {
-        $userPassword = Str::random(15); 
+        $userPassword = Str::random(15);
 
         $tenant = Tenant::create([
             'name' => $request->input('tenantName'),
             'email' =>  $request->input('userEmail'),
             'description' => $request->input('tenantDescription'),
-            'logo_path' => $request->file('tenantLogoPath')->store('logos', 'public'),
+            'logo_path' => $request?->file('tenantLogoPath')?->store('logos', 'public'),
+            'is_active' => $request->input('is_active')
         ]);
 
         $user = $tenant->users()->create([
@@ -62,7 +64,7 @@ class TenantController extends Controller
         //TODO: replace this with mailing system
         info('User Login Details' , ['email' => $user->email , 'password' => $userPassword]);
 
-        return redirect()->route('tenants.index')->with('success', 'Tenant and user created successfully.');
+        return redirect()->route('tenants.index')->with('success', "{$tenant->name} - Tenant and user created successfully.");
     }
 
     /**
@@ -70,7 +72,9 @@ class TenantController extends Controller
      */
     public function show(Tenant $tenant)
     {
-        // Code to show a specific tenant
+        return Inertia::render('tenants/show', [
+            'tenant' => $tenant->loadCount(['users'])
+        ]);
     }
 
     /**
@@ -78,15 +82,24 @@ class TenantController extends Controller
      */
     public function edit(Tenant $tenant)
     {
-        // Code to show form for editing a tenant
+        return Inertia::render('tenants/edit' , ['tenant' => $tenant]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Tenant $tenant)
+    public function update(TenantUpdateRequest $request, Tenant $tenant)
     {
-        // Code to update a specific tenant
+
+        $tenant->update([
+            'name' => $request->input('tenantName'),
+            'email' =>  $request->input('tenantEmail'),
+            'description' => $request->input('tenantDescription'),
+            'logo_path' => $request->file('tenantLogoPath') != null ? $request->file('tenantLogoPath')->store('logos', 'public') : $tenant->logo_path,
+            'is_active' => $request->input('is_active')
+        ]);
+
+        return redirect()->route('tenants.index')->with('success', "{$tenant->name} - Tenant updated successfully.");
     }
 
     /**
@@ -94,6 +107,8 @@ class TenantController extends Controller
      */
     public function destroy(Tenant $tenant)
     {
-        // Code to delete a specific tenant
+        $tenant->delete();
+
+        return redirect()->route('tenants.index')->with('success', "{$tenant->name} - Tenant and all associated data have been deleted successfully.");
     }
 }

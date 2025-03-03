@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,16 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 interface Tenant {
   id: number;
@@ -44,6 +54,13 @@ interface IndexProps {
   can: Permissions;
 }
 
+interface PageProps {
+  flash: {
+    success?: string;
+    error?: string;
+  };
+}
+
 const breadcrumbs: BreadcrumbItem[] = [
   {
     title: 'Dashboard',
@@ -56,10 +73,44 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ tenants, can }: IndexProps) {
+  const { flash } = usePage<PageProps>().props;
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [tenantToDelete, setTenantToDelete] = useState<Tenant | null>(null);
+
+  useEffect(() => {
+    if (flash.success) {
+      toast.success(flash.success);
+    }
+    if (flash.error) {
+      toast.error(flash.error);
+    }
+  }, [flash]);
+
+  const handleDeleteClick = (tenant: Tenant) => {
+    setTenantToDelete(tenant);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (tenantToDelete) {
+      router.delete(route('tenants.destroy', tenantToDelete.id), {
+        onSuccess: () => {
+          setDeleteDialogOpen(false);
+          setTenantToDelete(null);
+        },
+        onError: () => {
+          toast.error('Failed to delete tenant', {
+            description: 'Please try again or contact support if the problem persists.',
+          });
+        },
+      });
+    }
+  };
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Tenants" />
-      
+
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Tenants</h2>
@@ -111,13 +162,13 @@ export default function Index({ tenants, can }: IndexProps) {
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center text-sm">
                         <Users className="h-4 w-4 mr-1" />
-                        <span>{tenant.users_count}</span>
+                        <span>{tenant.users_count || 0}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center text-sm">
                         <CalendarDays className="h-4 w-4 mr-1" />
-                        <span>{tenant.events_count}</span>
+                        <span>{tenant.events_count || 0}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -143,6 +194,7 @@ export default function Index({ tenants, can }: IndexProps) {
                             {can.delete && (
                                 <DropdownMenuItem
                                 className="text-red-600"
+                                onClick={() => handleDeleteClick(tenant)}
                                 >
                                 <Trash className="h-4 w-4 mr-2" /> Delete
                                 </DropdownMenuItem>
@@ -172,6 +224,33 @@ export default function Index({ tenants, can }: IndexProps) {
           </div>
         )}
       </div>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Tenant</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {tenantToDelete?.name}? This action cannot be undone.
+              All associated data including users and events will be permanently deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={!tenantToDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

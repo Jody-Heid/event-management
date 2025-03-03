@@ -1,11 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle , Folder } from 'lucide-react';
 import { FormEventHandler } from 'react';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +17,7 @@ interface CreateTenantForm {
     tenantLogoPath: File | null;
     userFullName: string;
     userEmail: string;
+    is_active: boolean;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -37,9 +39,10 @@ export default function CreateTenant() {
     const { data, setData, post, processing, errors, reset } = useForm<CreateTenantForm>({
         tenantName: '',
         tenantDescription: '',
-        tenantLogoPath: '',
+        tenantLogoPath: null,
         userFullName: '',
         userEmail: '',
+        is_active: true,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -85,23 +88,27 @@ export default function CreateTenant() {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="tenantLogoPath">Upload Logo</Label>
-                                <Input
-                                    id="tenantLogoPath"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        if (e.target.files) {
-                                            const file = e.target.files[0];
-                                            setData('tenantLogoPath', file);
-                                        }
-                                    }}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="tenantLogoPath"
+                                        type="file"
+                                        accept="image/*"
+                                        className="pl-10"
+                                        onChange={(e) => {
+                                            if (e.target.files) {
+                                                const file = e.target.files[0];
+                                                setData('tenantLogoPath', file);
+                                            }
+                                        }}
+                                    />
+                                    <Folder className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                                </div>
                                 <InputError message={errors.tenantLogoPath} />
                             </div>
 
                             {/* User Information */}
                             <div className="grid gap-2">
-                                <Label htmlFor="userFullName">User Name</Label>
+                                <Label htmlFor="userFullName">User Full Name</Label>
                                 <Input
                                     id="userFullName"
                                     required
@@ -123,6 +130,18 @@ export default function CreateTenant() {
                                     placeholder="user@example.com"
                                 />
                                 <InputError message={errors.userEmail} />
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="is_active"
+                                    checked={data.is_active}
+                                    onCheckedChange={(checked) => setData('is_active', checked)}
+                                />
+                                <Label htmlFor="is_active">
+                                    Active Status
+                                </Label>
+                                <InputError message={errors.is_active} />
                             </div>
 
                             <Button type="submit" className="mt-4 w-50 cursor-pointer" disabled={processing}>
