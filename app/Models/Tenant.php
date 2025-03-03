@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Tenant extends Model
 {
     use SoftDeletes , HasFactory;
+
     protected $fillable = [
         'name',
         'email',
@@ -16,6 +17,18 @@ class Tenant extends Model
         'logo_path',
         'is_active',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function users()
     {
