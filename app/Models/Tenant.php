@@ -35,6 +35,11 @@ class Tenant extends Model
         return $this->hasMany(User::class);
     }
 
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
+
     protected static function boot()
     {
         parent::boot();

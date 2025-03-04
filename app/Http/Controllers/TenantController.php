@@ -19,6 +19,7 @@ class TenantController extends Controller
     {
         $tenants = Tenant::query()
         ->withCount('users')
+        ->withCount('events')
         ->orderBy('name')
         ->paginate(10);
 
@@ -73,7 +74,7 @@ class TenantController extends Controller
     public function show(Tenant $tenant)
     {
         return Inertia::render('tenants/show', [
-            'tenant' => $tenant->loadCount(['users'])
+            'tenant' => $tenant->loadCount(['users' , 'events'])
         ]);
     }
 
