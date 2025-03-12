@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum  EventTypesEnum: string
+enum  EventTypeEnum: string
 {
     case FREE = 'free';
     case PAID = 'paid';

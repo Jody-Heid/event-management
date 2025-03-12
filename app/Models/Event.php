@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatusEnum;
-use App\Enums\EventTypesEnum;
+use App\Enums\EventTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,7 +38,7 @@ class Event extends Model
         'ticket_limit' => 'integer',
         'ticket_limit_per_user' => 'integer',
         'status' => EventStatusEnum::class,
-        'event_type' => EventTypesEnum::class
+        'event_type' => EventTypeEnum::class
     ];
 
     public function tenant(): BelongsTo

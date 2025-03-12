@@ -37,13 +37,5 @@ class EventSeeder extends Seeder
                 'tenant_id' => $tenant->id,
                 'created_by' => $user->id,
             ]);
-
-        Event::factory()
-            ->featured()
-            ->count(5)
-            ->create([
-                'tenant_id' => $tenant->id,
-                'created_by' => $user->id,
-            ]);
     }
 }
