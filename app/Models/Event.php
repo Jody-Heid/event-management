@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use App\Enums\EventStatusEnum;
+use Illuminate\Support\Str;
 use App\Enums\EventTypeEnum;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\EventStatusEnum;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Event extends Model
 {
@@ -34,12 +35,29 @@ class Event extends Model
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'ticket_price' => 'decimal',
+        'ticket_price' => 'float',
         'ticket_limit' => 'integer',
         'ticket_limit_per_user' => 'integer',
         'status' => EventStatusEnum::class,
         'event_type' => EventTypeEnum::class
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($event){
+            $event->created_by = auth()->user()->id;
+
+            if (!$event->slug) {
+                $event->slug = Str::slug($event->name);
+            }
+        });
+
+        static::updating(function($event){
+            if ($event->isDirty('name')) {
+                $event->slug = Str::slug($event->name);
+            }
+        });
+    }
 
     public function tenant(): BelongsTo
     {
