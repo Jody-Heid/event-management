@@ -18,14 +18,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description');
-            $table->string('short_description', 500)->nullable();
             $table->timestamp('start_time');
             $table->timestamp('end_time');
             $table->string('location');
-            $table->string('image_url');
             $table->string('status')->default(EventStatusEnum::DRAFT);
-            $table->boolean('is_featured')->default(false);
-            $table->integer('ticket_limit');
+            $table->string('event_type');
+            $table->decimal('ticket_price')->nullable();
+            $table->integer('ticket_limit')->nullable();
             $table->integer('ticket_limit_per_user')->nullable();
             $table->text('cancellation_reason')->nullable();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
@@ -36,7 +35,6 @@ return new class extends Migration
             $table->index('tenant_id');
             $table->index('start_time');
             $table->index('status');
-            $table->index('is_featured');
         });
     }
 
