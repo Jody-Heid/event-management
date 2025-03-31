@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('event_galleries', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
-            $table->string('event_image');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('image');
+            $table->string(column: 'caption');
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('event_id');
         });
     }
 

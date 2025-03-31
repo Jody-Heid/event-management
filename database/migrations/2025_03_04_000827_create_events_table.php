@@ -14,27 +14,19 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
-            $table->string('name');
+            $table->string('title');
             $table->string('slug')->unique();
-            $table->text('description');
-            $table->timestamp('start_time');
-            $table->timestamp('end_time');
-            $table->string('location');
-            $table->string('status')->default(EventStatusEnum::DRAFT);
-            $table->string('event_type');
-            $table->decimal('ticket_price')->nullable();
-            $table->integer('ticket_limit')->nullable();
-            $table->integer('ticket_limit_per_user')->nullable();
-            $table->text('cancellation_reason')->nullable();
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->longText('description');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
+            $table->timestamp('image');
+            $table->string('address');
+            $table->integer('num_tickets');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('country_id')->constrained();
+            $table->foreignId('city_id')->constrained();
             $table->timestamps();
             $table->softDeletes();
-
-            // Indexes
-            $table->index('tenant_id');
-            $table->index('start_time');
-            $table->index('status');
         });
     }
 
