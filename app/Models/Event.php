@@ -16,30 +16,23 @@ class Event extends Model
     use SoftDeletes , HasFactory;
 
     protected $fillable = [
-        'tenant_id',
-        'name',
+        'title',
         'slug',
         'description',
-        'start_time',
-        'end_time',
-        'location',
-        'status',
-        'event_type',
-        'ticket_price',
-        'ticket_limit',
-        'ticket_limit_per_user',
-        'cancellation_reason',
-        'created_by'
+        'start_date',
+        'end_date',
+        'image',
+        'address',
+        'num_tickets',
+        'user_id',
+        'country_id',
+        'city_id'
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'ticket_price' => 'float',
-        'ticket_limit' => 'integer',
-        'ticket_limit_per_user' => 'integer',
-        'status' => EventStatusEnum::class,
-        'event_type' => EventTypeEnum::class
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'num_tickets' => 'integer'
     ];
 
     protected static function booted()
@@ -59,23 +52,38 @@ class Event extends Model
         });
     }
 
-    public function tenant(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function creator(): BelongsTo
+    public function country(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(Country::class);
     }
 
-    public function eventGalleries(): HasMany
+    public function city(): BelongsTo
     {
-        return $this->hasMany(EventGallery::class);
+        return $this->belongsTo(City::class);
     }
 
-    public function eventBookings(): HasMany
+    public function comments(): HasMany
     {
-        return $this->hasMany(EventBooking::class);
+        return $this->hasMany(related: Comment::class);
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany( Comment::class);
+    }
+
+    public function attendings(): HasMany
+    {
+        return $this->hasMany( Attending::class);
+    }
+
+    public function tags(): HasMany
+    {
+        return $this->hasMany( Tag::class);
     }
 }
