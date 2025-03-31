@@ -22,7 +22,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'tenant_id',
     ];
 
     /**
@@ -46,15 +45,5 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function tenant()
-    {
-        return $this->hasOne(Tenant::class);
-    }
-
-    public function eventBookings()
-    {
-        return $this->hasMany(EventBooking::class);
     }
 }

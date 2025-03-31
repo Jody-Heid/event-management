@@ -15,8 +15,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
-    Route::resource('tenants' ,TenantController::class);
-    Route::resource('tenants.users' ,UserController::class);
     Route::resource('events' ,EventController::class);
 });
 

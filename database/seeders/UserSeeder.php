@@ -19,7 +19,6 @@ class UserSeeder extends Seeder
             'name' => env('SUPERADMIN_NAME'),
             'email' => env('SUPERADMIN_EMAIL'),
             'password' => Hash::make(env('SUPERADMIN_PASSWORD')),
-            'tenant_id' => Tenant::where('email', env('MAIN_COMPANY_EMAIL'))->first()->id,
         ]);
     }
 }

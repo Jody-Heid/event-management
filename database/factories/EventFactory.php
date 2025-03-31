@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Enums\EventStatusEnum;
 use App\Enums\EventTypeEnum;
 use App\Models\Event;
-use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -24,7 +23,6 @@ class EventFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id' => Tenant::factory(),
             'name' => fake()->sentence(3),
             'slug' => fake()->slug(),
             'description' => fake()->sentence(),
