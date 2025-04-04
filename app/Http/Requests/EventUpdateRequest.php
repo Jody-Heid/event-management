@@ -26,17 +26,16 @@ class EventUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => ['nullable' , 'integer' , Rule::exists('tenants' ,'id')],
-            'name' => ['required'  ,'string' , 'max:255'],
+            'title' => ['required'  ,'string' , 'max:255'],
             'description' => ['required'  ,'string' , 'max:255'],
-            'start_time' => ['required' , 'date'],
-            'end_time' => ['required' , 'date'],
-            'location' => ['required' , 'string'],
-            'status' => ['required' , new Enum(EventStatusEnum::class)],
-            'event_type' => ['required' , new Enum(EventTypeEnum::class)],
-            'ticket_price' => ['nullable' , 'numeric'],
-            'ticket_limit' => ['nullable' , 'integer'],
-            'ticket_limit_per_user' => ['nullable' , 'integer'],
+            'start_date' => ['required' , 'date'],
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'current_image' => ['nullable' , 'string'],
+            'new_image' => ['nullable' , 'image' , 'max:2048' , 'mimes:jpeg,png,jpg,gif'],
+            'address' => ['required' , 'string' , 'max:255'],
+            'num_tickets' => ['required' , 'numeric' , 'min:1'],
+            'country_id' => ['required' , 'integer' , Rule::exists('countries' ,'id')],
+            'city_id' => ['required' , 'integer' , Rule::exists('cities' ,'id')],
         ];
     }
 }
