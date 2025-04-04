@@ -2,11 +2,8 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\EventTypeEnum;
-use App\Enums\EventStatusEnum;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EventUpdateRequest extends FormRequest
 {
@@ -26,16 +23,16 @@ class EventUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required'  ,'string' , 'max:255'],
-            'description' => ['required'  ,'string' , 'max:255'],
-            'start_date' => ['required' , 'date'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:255'],
+            'start_date' => ['required', 'date'],
             'end_date' => 'required|date|after_or_equal:start_date',
-            'current_image' => ['nullable' , 'string'],
-            'new_image' => ['nullable' , 'image' , 'max:2048' , 'mimes:jpeg,png,jpg,gif'],
-            'address' => ['required' , 'string' , 'max:255'],
-            'num_tickets' => ['required' , 'numeric' , 'min:1'],
-            'country_id' => ['required' , 'integer' , Rule::exists('countries' ,'id')],
-            'city_id' => ['required' , 'integer' , Rule::exists('cities' ,'id')],
+            'current_image' => ['nullable', 'string'],
+            'new_image' => ['nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,gif'],
+            'address' => ['required', 'string', 'max:255'],
+            'num_tickets' => ['required', 'numeric', 'min:1'],
+            'country_id' => ['required', 'integer', Rule::exists('countries', 'id')],
+            'city_id' => ['required', 'integer', Rule::exists('cities', 'id')],
         ];
     }
 }

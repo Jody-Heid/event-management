@@ -10,7 +10,7 @@ class Comment extends Model
     protected $fillable = [
         'user_id',
         'event_id',
-        'content'
+        'content',
     ];
 
     public function user(): BelongsTo

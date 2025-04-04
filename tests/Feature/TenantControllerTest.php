@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Tenant;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class TenantControllerTest extends TestCase
 {
@@ -62,13 +62,12 @@ class TenantControllerTest extends TestCase
 
         $tenant = Tenant::where('email', 'admin@acme.com')->first();
 
-        Storage::disk('public')->assertExists('logos/' . $logo->hashName());
-
+        Storage::disk('public')->assertExists('logos/'.$logo->hashName());
 
         $this->assertDatabaseHas('users', [
             'name' => 'John Doe',
             'email' => 'admin@acme.com',
-            'tenant_id' => $tenant->id
+            'tenant_id' => $tenant->id,
         ]);
 
     }
@@ -103,7 +102,7 @@ class TenantControllerTest extends TestCase
             'is_active' => false,
         ]);
 
-        Storage::disk('public')->assertExists('logos/' . $logo->hashName());
+        Storage::disk('public')->assertExists('logos/'.$logo->hashName());
     }
 
     public function test_destroy_tenant()

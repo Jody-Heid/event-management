@@ -10,11 +10,11 @@ class Attending extends Model
     protected $fillable = [
         'user_id',
         'event_id',
-        'num_tickets'
+        'num_tickets',
     ];
 
     protected $casts = [
-        'num_tickets' => 'integer'
+        'num_tickets' => 'integer',
     ];
 
     public function user(): BelongsTo

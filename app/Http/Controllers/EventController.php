@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
-use Inertia\Inertia;
-use App\Models\Event;
-use App\Models\Country;
-use Illuminate\Support\Str;
-use App\Enums\EventTypeEnum;
-use App\Enums\EventStatusEnum;
-use App\Traits\ImageUploadTrait;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\EventStoreRequest;
 use App\Http\Requests\EventUpdateRequest;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\Event;
+use App\Traits\ImageUploadTrait;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class EventController extends Controller
 {
@@ -25,8 +22,8 @@ class EventController extends Controller
     public function index()
     {
         $events = Event::all();
-        
-        return Inertia::render('events/index' , ['events' => ['data' => $events]]);
+
+        return Inertia::render('events/index', ['events' => ['data' => $events]]);
     }
 
     /**
@@ -37,9 +34,9 @@ class EventController extends Controller
         $countries = Country::all();
         $cities = City::all();
 
-        return Inertia::render('events/create' , [
-            'countries' =>$countries,
-            'cities' => $cities
+        return Inertia::render('events/create', [
+            'countries' => $countries,
+            'cities' => $cities,
         ]);
     }
 
@@ -49,7 +46,7 @@ class EventController extends Controller
     public function store(EventStoreRequest $request)
     {
         DB::transaction(function () use ($request) {
-            if($request->hasFile('image')){
+            if ($request->hasFile('image')) {
                 $imagePath = $this->saveImage(
                     $request->file('image'),
                     'events',
@@ -64,11 +61,11 @@ class EventController extends Controller
                 ...$request->validated(),
                 'user_id' => auth()->user()->id,
                 'image' => $imagePath,
-                'slug' => Str::slug($request->validated('title'))
+                'slug' => Str::slug($request->validated('title')),
             ]);
         });
 
-        return redirect()->route('events.index')->with('success', "Event created successfully.");
+        return redirect()->route('events.index')->with('success', 'Event created successfully.');
     }
 
     /**
@@ -76,7 +73,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        return Inertia::render('events/show' , ['event' => $event]);
+        return Inertia::render('events/show', ['event' => $event]);
     }
 
     /**
@@ -87,10 +84,10 @@ class EventController extends Controller
         $countries = Country::all();
         $cities = City::all();
 
-        return Inertia::render('events/edit' , [
+        return Inertia::render('events/edit', [
             'event' => $event,
-            'countries' =>$countries,
-            'cities' => $cities
+            'countries' => $countries,
+            'cities' => $cities,
         ]);
     }
 
@@ -114,7 +111,7 @@ class EventController extends Controller
                 'slug' => Str::slug($validated['title']),
             ];
 
-            if($request->hasFile('new_image')){
+            if ($request->hasFile('new_image')) {
                 $data['image'] = $this->replaceImage(
                     $request->file('new_image'),
                     $event->image,

@@ -25,17 +25,17 @@ class UserUpdateRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'email' => [
                 'required',
                 'email',
-                'unique:users,email,' . $this->user->id
+                'unique:users,email,'.$this->user->id,
             ],
             'password' => [
                 'nullable',
-                'min:8'
-            ]
+                'min:8',
+            ],
         ];
     }
 }

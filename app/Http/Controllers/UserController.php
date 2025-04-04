@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
-use App\Models\User;
-use Inertia\Inertia;
 use App\Models\Tenant;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -24,7 +23,7 @@ class UserController extends Controller
 
         return Inertia::render('tenants/users/index', [
             'tenant' => $tenant,
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
@@ -34,7 +33,7 @@ class UserController extends Controller
     public function create(Tenant $tenant)
     {
         return Inertia::render('tenants/users/create', [
-            'tenant' => $tenant
+            'tenant' => $tenant,
         ]);
     }
 
@@ -50,7 +49,7 @@ class UserController extends Controller
         $tenant->users()->create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($userPassword)
+            'password' => Hash::make($userPassword),
         ]);
 
         return redirect()->route('tenants.users.index', $tenant)
@@ -64,7 +63,7 @@ class UserController extends Controller
     {
         return Inertia::render('tenants/users/show', [
             'tenant' => $tenant,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
@@ -75,7 +74,7 @@ class UserController extends Controller
     {
         return Inertia::render('tenants/users/edit', [
             'tenant' => $tenant,
-            'user' => $user
+            'user' => $user,
         ]);
     }
 

@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EventGallery extends Model
 {
-    use SoftDeletes,HasFactory;
+    use HasFactory,SoftDeletes;
 
     protected $fillable = [
-        'user_id', 
+        'user_id',
         'image',
-        'caption'
+        'caption',
     ];
 
     public function event(): BelongsTo

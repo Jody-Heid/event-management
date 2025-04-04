@@ -22,12 +22,12 @@ class TenantStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenantName' => ['required' , 'string'],
-            'tenantDescription' => ['nullable' , 'string'],
+            'tenantName' => ['required', 'string'],
+            'tenantDescription' => ['nullable', 'string'],
             'tenantLogoPath' => ['nullable', 'image', 'max:2048'],
-            'userFullName' => ['required' , 'string'],
-            'userEmail' => ['required' , 'email' , 'unique:users,email'],
-            'is_active' => ['required' , 'boolean']
+            'userFullName' => ['required', 'string'],
+            'userEmail' => ['required', 'email', 'unique:users,email'],
+            'is_active' => ['required', 'boolean'],
         ];
     }
 }

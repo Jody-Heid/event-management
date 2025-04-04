@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TenantUpdateRequest extends FormRequest
 {
@@ -23,11 +23,11 @@ class TenantUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenantName' => ['required' , 'string'],
-            'tenantEmail' => ['required' , 'email' , Rule::unique('tenants' , 'email')->ignore($this->tenant->id)],
-            'tenantDescription' => ['nullable' , 'string'],
+            'tenantName' => ['required', 'string'],
+            'tenantEmail' => ['required', 'email', Rule::unique('tenants', 'email')->ignore($this->tenant->id)],
+            'tenantDescription' => ['nullable', 'string'],
             'tenantLogoPath' => ['nullable', 'image', 'max:2048'],
-            'is_active' => ['required' , 'boolean']
+            'is_active' => ['required', 'boolean'],
         ];
     }
 }

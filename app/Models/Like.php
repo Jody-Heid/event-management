@@ -9,15 +9,15 @@ class Like extends Model
 {
     protected $fillable = [
         'user_id',
-        'event_id'
+        'event_id',
     ];
 
-    public function user():BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function event():BelongsTo
+    public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class);
     }

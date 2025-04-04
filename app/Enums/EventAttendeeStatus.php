@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum  EventAttendeeStatus: string
+enum EventAttendeeStatus: string
 {
     case CHECKEDIN = 'checked-in';
 }

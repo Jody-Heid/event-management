@@ -48,27 +48,27 @@ class User extends Authenticatable
         ];
     }
 
-    public function events():HasMany
+    public function events(): HasMany
     {
         return $this->hasMany(Event::class);
     }
 
-    public function eventGalleries():HasMany
+    public function eventGalleries(): HasMany
     {
         return $this->hasMany(EventGallery::class);
     }
 
-    public function comments():HasMany
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
 
-    public function likes():HasMany
+    public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
     }
 
-    public function attendings():HasMany
+    public function attendings(): HasMany
     {
         return $this->hasMany(Attending::class);
     }

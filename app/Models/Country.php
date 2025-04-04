@@ -8,15 +8,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Country extends Model
 {
     protected $fillable = [
-        'name'
+        'name',
     ];
 
-    public function cities():HasMany
+    public function cities(): HasMany
     {
         return $this->hasMany(City::class);
     }
 
-    public function events():HasMany
+    public function events(): HasMany
     {
         return $this->hasMany(Event::class);
     }
