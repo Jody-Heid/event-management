@@ -20,7 +20,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Gallery',
-        url: '/gallery',
+        url: '/event-gallery',
         icon: Image,
     },
 ];

@@ -48,16 +48,13 @@ trait ImageUploadTrait
 
                 $extension = strtolower($image->getClientOriginalExtension());
 
-                info('Extension', [$extension]);
-
                 if (! in_array($extension, ['png', 'gif'])) {
                     $img = $img->toJpeg($quality);
                     $filename = Str::beforeLast($filename, '.').'.jpg';
                     $fullPath = $path.'/'.$filename;
                 } else {
-                    info('Image Else');
                     if ($extension == 'png') {
-                        $img = $img->toPng($quality);
+                        $img = $img->toPng();
                     } elseif ($extension == 'gif') {
                         $img = $img->toGif();
                     }

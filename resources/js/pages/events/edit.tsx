@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 
 interface EditEventForm {
+    [key:string]:any;
     title: string;
     description: string;
     start_date: Date | undefined;
