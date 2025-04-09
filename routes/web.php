@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventGalleryController;
+use App\Http\Controllers\HomePageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', HomePageController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
