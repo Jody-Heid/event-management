@@ -50,10 +50,10 @@ class EventController extends Controller
                 $imagePath = $this->saveImage(
                     $request->file('image'),
                     'events',
-                    800,
                     null,
-                    true,
-                    85
+                    null,
+                    false,
+                    100
                 );
             }
 
@@ -117,8 +117,8 @@ class EventController extends Controller
                     $event->image,
                     'events',
                     null,
-                    true,
-                    85
+                    null,
+                    false
                 );
 
             }

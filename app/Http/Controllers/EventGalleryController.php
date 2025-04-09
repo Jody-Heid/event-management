@@ -47,9 +47,9 @@ class EventGalleryController extends Controller
                 $imagePath = $this->saveImage(
                     $request->file('image'),
                     'gallery',
-                    800,
                     null,
-                    true,
+                    null,
+                    false,
                     85
                 );
 
@@ -108,8 +108,8 @@ class EventGalleryController extends Controller
                         $eventGallery->image,
                         'gallery',
                         null,
-                        true,
-                        85
+                        null,
+                        false
                     );
 
                     if (! $newImagePath) {
