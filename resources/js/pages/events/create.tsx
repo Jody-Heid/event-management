@@ -1,6 +1,6 @@
 import { useState, FormEventHandler } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { LoaderCircle, Folder, Check } from 'lucide-react';
+import { LoaderCircle, Folder, Check, X, Tag as TagIcon, ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -8,6 +8,13 @@ import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tag } from '@/types/tag';
 
 interface CreateEventForm {
     [key:string]:any;
@@ -30,6 +38,7 @@ interface CreateEventForm {
     num_tickets: number;
     country_id: number;
     city_id: number;
+    tags: string[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -38,8 +47,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Create Event', href: '/events/create' },
 ];
 
-export default function CreateEvent({ countries, cities }: { countries: any[]; cities: any[] }) {
-    // Get old input values from the page props
+interface CreateEventProps {
+    countries: any[];
+    cities: any[];
+    tags: Tag[];
+}
+
+export default function CreateEvent({ countries, cities, tags }: CreateEventProps) {
     const { props } = usePage();
     const old = (props.old || {}) as Partial<CreateEventForm>;
     const { data, setData, post, processing, errors, reset } = useForm<CreateEventForm>({
@@ -52,10 +66,50 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
         num_tickets: old?.num_tickets || 0,
         country_id: old?.country_id || (countries.length > 0 ? countries[0].id : 0),
         city_id: old?.city_id || (cities.length > 0 ? cities[0].id : 0),
+        tags: old?.tags || [],
     });
+
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const TAGS_PER_PAGE = 5;
 
     const handleDateChange = (key: 'start_date' | 'end_date', date: Date | undefined) => {
         setData(key, date);
+    };
+
+    const addTag = (tagName: string) => {
+        if (!data.tags.includes(tagName)) {
+            setData('tags', [...data.tags, tagName]);
+        }
+        setIsTagsOpen(false);
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setData('tags', data.tags.filter(tag => tag !== tagToRemove));
+    };
+
+    const getAvailableTags = () => {
+        const filteredTags = tags.filter(tag => !data.tags.includes(tag.name));
+        if (searchQuery) {
+            return filteredTags
+                .filter(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                .slice(0, TAGS_PER_PAGE);
+        }
+        return filteredTags.slice(0, TAGS_PER_PAGE);
+    };
+
+    const handleCreateTag = () => {
+        const formattedTag = searchQuery
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+            .trim();
+
+        if (formattedTag && !data.tags.includes(formattedTag)) {
+            addTag(formattedTag);
+            setSearchQuery('');
+        }
     };
 
     const submit: FormEventHandler = (e) => {
@@ -74,7 +128,7 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                     <CardContent>
                         <form className="flex flex-col gap-6" onSubmit={submit}>
                             <div className="grid gap-6">
-                                {/* Title */}
+
                                 <div className="grid gap-2">
                                     <Label htmlFor="title">Event Title <span className="text-red-500">*</span></Label>
                                     <Input
@@ -87,7 +141,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.title} />
                                 </div>
 
-                                {/* Description */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="description">Event Description <span className="text-red-500">*</span></Label>
                                     <Input
@@ -100,7 +153,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.description} />
                                 </div>
 
-                                {/* Start Date */}
                                 <div className="grid gap-2">
                                     <Label>Start Date <span className="text-red-500">*</span></Label>
                                     <Popover>
@@ -120,7 +172,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.start_date} />
                                 </div>
 
-                                {/* End Date */}
                                 <div className="grid gap-2">
                                     <Label>End Date <span className="text-red-500">*</span></Label>
                                     <Popover>
@@ -140,7 +191,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.end_date} />
                                 </div>
 
-                                {/* Image Upload */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="image">Upload Image <span className="text-red-500">*</span></Label>
                                     <div className="relative">
@@ -161,7 +211,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.image} />
                                 </div>
 
-                                {/* Address */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="address">Address <span className="text-red-500">*</span></Label>
                                     <Input
@@ -174,7 +223,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.address} />
                                 </div>
 
-                                {/* Number of Tickets */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="num_tickets">Number of Tickets <span className="text-red-500">*</span></Label>
                                     <Input
@@ -188,7 +236,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.num_tickets} />
                                 </div>
 
-                                {/* Country Select - shadcn */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="country_id">Country <span className="text-red-500">*</span></Label>
                                     <Select
@@ -209,7 +256,6 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                     <InputError message={errors.country_id} />
                                 </div>
 
-                                {/* City Select - shadcn */}
                                 <div className="grid gap-2">
                                     <Label htmlFor="city_id">City <span className="text-red-500">*</span></Label>
                                     <Select
@@ -228,6 +274,83 @@ export default function CreateEvent({ countries, cities }: { countries: any[]; c
                                         </SelectContent>
                                     </Select>
                                     <InputError message={errors.city_id} />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label>Event Tags <span className="text-red-500">*</span></Label>
+                                    <Popover open={isTagsOpen} onOpenChange={setIsTagsOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={isTagsOpen}
+                                                className="justify-between"
+                                            >
+                                                Select tags...
+                                                <TagIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput 
+                                                    placeholder="Search or create new tag..." 
+                                                    value={searchQuery}
+                                                    onValueChange={setSearchQuery}
+                                                />
+                                                <CommandEmpty className="py-2">
+                                                    {searchQuery && (
+                                                        <button
+                                                            onClick={handleCreateTag}
+                                                            className="flex items-center gap-2 px-2 py-1.5 text-sm w-full hover:bg-primary/10 text-primary rounded-sm"
+                                                        >
+                                                            <PlusCircle className="h-4 w-4" />
+                                                            <span>Create tag "{searchQuery}"</span>
+                                                        </button>
+                                                    )}
+                                                    {!searchQuery && <p className="px-2 text-sm">No tags found.</p>}
+                                                </CommandEmpty>
+                                                <CommandGroup>
+                                                    {getAvailableTags().map((tag: Tag) => (
+                                                        <CommandItem
+                                                            key={tag.id}
+                                                            onSelect={() => addTag(tag.name)}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <TagIcon className="mr-2 h-4 w-4" />
+                                                            {tag.name}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                                <div className="border px-3 py-2">
+                                                    <p className="text-sm text-gray-500">
+                                                        {tags.length - data.tags.length} tags available • Type to search or create new
+                                                    </p>
+                                                </div>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    {data.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 rounded-md bg-gray-50">
+                                            {data.tags.map((tag) => (
+                                                <div
+                                                    key={tag}
+                                                    className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full"
+                                                >
+                                                    <TagIcon className="h-3 w-3" />
+                                                    <span className="text-xs">{tag}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeTag(tag)}
+                                                        className="text-primary hover:text-primary/80 focus:outline-none cursor-pointer"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <InputError message={errors.tags} />
                                 </div>
 
                                 <Button type="submit" disabled={processing}>

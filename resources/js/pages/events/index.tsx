@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Event } from '@/types/event';
-import { CalendarDays, Plus, Eye, MoreVertical, Pencil, Trash, MapPin } from 'lucide-react';
+import { CalendarDays, Plus, Eye, MoreVertical, Pencil, Trash, MapPin, Tag } from 'lucide-react';
 import { type BreadcrumbItem } from '@/types';
 import {
   Table,
@@ -73,6 +73,17 @@ export default function Index({ events }: IndexProps) {
     }
   };
 
+  const formatDateRange = (startDate: string | Date, endDate: string | Date) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start.toDateString() === end.toDateString()) {
+      return start.toLocaleDateString();
+    }
+    
+    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+  };
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title="Events" />
@@ -92,10 +103,9 @@ export default function Index({ events }: IndexProps) {
             <Table className="w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Title</TableHead>
-                  <TableHead className="w-[30%]">Description</TableHead>
-                  <TableHead className="w-[12%]">Start Date</TableHead>
-                  <TableHead className="w-[12%]">End Date</TableHead>
+                  <TableHead className="w-[25%]">Title</TableHead>
+                  <TableHead className="w-[15%]">Tags</TableHead>
+                  <TableHead className="w-[20%]">Date</TableHead>
                   <TableHead className="w-[20%]">Location</TableHead>
                   <TableHead className="w-[6%] text-right">Actions</TableHead>
                 </TableRow>
@@ -105,12 +115,25 @@ export default function Index({ events }: IndexProps) {
                   <TableRow key={event.id}>
                     <TableCell className="font-medium">{event.title}</TableCell>
                     <TableCell>
-                      <div className="line-clamp-1 text-sm text-muted-foreground">
-                        {event.description || "No description provided."}
+                      <div className="flex flex-wrap gap-1 items-center">
+                        {event.tags.map((tag, index) => (
+                          <span 
+                            key={tag.name}
+                            className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-xs whitespace-nowrap inline-flex items-center"
+                          >
+                            <Tag className="h-3 w-3 text-primary mr-1 flex-shrink-0" />
+                            {tag.name}
+                            {index < event.tags.length - 1}
+                          </span>
+                        ))}
                       </div>
                     </TableCell>
-                    <TableCell>{new Date(event.start_date).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(event.end_date).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center text-sm">
+                        <CalendarDays className="h-4 w-4 mr-1 flex-shrink-0" />
+                        <span>{formatDateRange(event.start_date, event.end_date)}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center text-sm">
                         <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />

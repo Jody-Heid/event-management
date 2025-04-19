@@ -1,4 +1,4 @@
-
+import { Tag } from "./tag"
 
 export type Event = {
     'id': number,
@@ -11,5 +11,6 @@ export type Event = {
     'num_tickets': number,
     'user_id': number,
     'country_id': number,
-    'city_id': number
+    'city_id': number,
+    'tags': Tag[],
 }

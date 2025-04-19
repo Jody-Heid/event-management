@@ -12,8 +12,8 @@ class Tag extends Model
         'slug',
     ];
 
-    public function events(): BelongsTo
+    public function events()
     {
-        return $this->belongsTo(Event::class);
+        return $this->belongsToMany(Event::class);
     }
 }

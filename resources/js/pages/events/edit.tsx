@@ -1,6 +1,6 @@
-import { FormEventHandler } from 'react';
+import { useState, FormEventHandler } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { LoaderCircle, Folder } from 'lucide-react';
+import { LoaderCircle, Folder, Check, X, Tag as TagIcon, ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -8,6 +8,13 @@ import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,6 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Event } from '@/types/event';
+import { Tag } from '@/types/tag';
+
 
 interface EditEventForm {
     [key:string]:any;
@@ -31,7 +41,7 @@ interface EditEventForm {
     num_tickets: number;
     country_id: number;
     city_id: number;
-    _method?: string;
+    tags: string[];
 }
 
 const breadcrumbs = (eventTitle: string): BreadcrumbItem[] => [
@@ -40,7 +50,7 @@ const breadcrumbs = (eventTitle: string): BreadcrumbItem[] => [
     { title: `Edit: ${eventTitle}`, href: '#' },
 ];
 
-export default function EditEvent({ event, countries, cities }: { event: any; countries: any[]; cities: any[] }) {
+export default function EditEvent({ event, countries, cities, tags }: { event: Event; countries: any[]; cities: any[]; tags: Tag[] }) {
     const { props } = usePage();
     const old = (props.old || {}) as Partial<EditEventForm>;
     
@@ -50,13 +60,18 @@ export default function EditEvent({ event, countries, cities }: { event: any; co
         start_date: old?.start_date ? new Date(old.start_date) : new Date(event.start_date),
         end_date: old?.end_date ? new Date(old.end_date) : new Date(event.end_date),
         new_image: null,
-        current_image: event.image, // Path to the stored image
+        current_image: event.image,
         address: old?.address || event.address,
         num_tickets: old?.num_tickets || event.num_tickets,
         country_id: old?.country_id || event.country_id,
         city_id: old?.city_id || event.city_id,
+        tags: old?.tags || (event.tags ? event.tags.map((tag: Tag) => tag.name) : []),
         _method: 'PUT',
     });
+
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const TAGS_PER_PAGE = 5;
 
     const handleDateChange = (key: 'start_date' | 'end_date', date: Date | undefined) => {
         setData(key, date);
@@ -68,6 +83,41 @@ export default function EditEvent({ event, countries, cities }: { event: any; co
             setData('new_image', file);
         } else {
             setData('new_image', null);
+        }
+    };
+
+    const addTag = (tagName: string) => {
+        if (!data.tags.includes(tagName)) {
+            setData('tags', [...data.tags, tagName]);
+        }
+        setIsTagsOpen(false);
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setData('tags', data.tags.filter(tag => tag !== tagToRemove));
+    };
+
+    const getAvailableTags = () => {
+        const filteredTags = tags.filter(tag => !data.tags.includes(tag.name));
+        if (searchQuery) {
+            return filteredTags
+                .filter(tag => tag.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                .slice(0, TAGS_PER_PAGE);
+        }
+        return filteredTags.slice(0, TAGS_PER_PAGE);
+    };
+
+    const handleCreateTag = () => {
+        const formattedTag = searchQuery
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ')
+            .trim();
+
+        if (formattedTag && !data.tags.includes(formattedTag)) {
+            addTag(formattedTag);
+            setSearchQuery('');
         }
     };
 
@@ -84,12 +134,12 @@ export default function EditEvent({ event, countries, cities }: { event: any; co
         formData.append('country_id', data.country_id.toString());
         formData.append('city_id', data.city_id.toString());
         formData.append('_method', 'PUT');
+        formData.append('tags', JSON.stringify(data.tags));
         
-        // Only append new_image if it exists
         if (data.new_image) {
             formData.append('new_image', data.new_image);
         }
-        console.log(data);
+
         post(route('events.update', event.id), {
             data: formData,
             forceFormData: true,
@@ -298,6 +348,84 @@ export default function EditEvent({ event, countries, cities }: { event: any; co
                                         </SelectContent>
                                     </Select>
                                     <InputError message={errors.city_id} />
+                                </div>
+
+                                {/* Event Tags */}
+                                <div className="grid gap-2">
+                                    <Label>Event Tags <span className="text-red-500">*</span></Label>
+                                    <Popover open={isTagsOpen} onOpenChange={setIsTagsOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={isTagsOpen}
+                                                className="justify-between"
+                                            >
+                                                Select tags...
+                                                <TagIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandInput 
+                                                    placeholder="Search or create new tag..." 
+                                                    value={searchQuery}
+                                                    onValueChange={setSearchQuery}
+                                                />
+                                                <CommandEmpty className="py-2">
+                                                    {searchQuery && (
+                                                        <button
+                                                            onClick={handleCreateTag}
+                                                            className="flex items-center gap-2 px-2 py-1.5 text-sm w-full hover:bg-primary/10 text-primary rounded-sm"
+                                                        >
+                                                            <PlusCircle className="h-4 w-4" />
+                                                            <span>Create tag "{searchQuery}"</span>
+                                                        </button>
+                                                    )}
+                                                    {!searchQuery && <p className="px-2 text-sm">No tags found.</p>}
+                                                </CommandEmpty>
+                                                <CommandGroup>
+                                                    {getAvailableTags().map((tag: Tag) => (
+                                                        <CommandItem
+                                                            key={tag.id}
+                                                            onSelect={() => addTag(tag.name)}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <TagIcon className="mr-2 h-4 w-4" />
+                                                            {tag.name}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                                <div className="border px-3 py-2">
+                                                    <p className="text-sm text-gray-500">
+                                                        {tags.length - data.tags.length} tags available • Type to search or create new
+                                                    </p>
+                                                </div>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+
+                                    {data.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 rounded-md bg-gray-50">
+                                            {data.tags.map((tag) => (
+                                                <div
+                                                    key={tag}
+                                                    className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full"
+                                                >
+                                                    <TagIcon className="h-3 w-3" />
+                                                    <span className="text-xs">{tag}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeTag(tag)}
+                                                        className="text-primary hover:text-primary/80 focus:outline-none cursor-pointer"
+                                                    >
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                    <InputError message={errors.tags} />
                                 </div>
 
                                 <Button type="submit" disabled={processing}>

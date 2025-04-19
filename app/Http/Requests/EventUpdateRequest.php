@@ -33,6 +33,8 @@ class EventUpdateRequest extends FormRequest
             'num_tickets' => ['required', 'numeric', 'min:1'],
             'country_id' => ['required', 'integer', Rule::exists('countries', 'id')],
             'city_id' => ['required', 'integer', Rule::exists('cities', 'id')],
+            'tags' => ['nullable' ,'array'],
+            'tags.*' => ['string'],
         ];
     }
 }

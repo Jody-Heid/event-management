@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EventStoreRequest;
-use App\Http\Requests\EventUpdateRequest;
+use App\Models\Tag;
 use App\Models\City;
-use App\Models\Country;
+use Inertia\Inertia;
 use App\Models\Event;
+use App\Models\Country;
+use Illuminate\Support\Str;
 use App\Traits\ImageUploadTrait;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Inertia\Inertia;
+use App\Http\Requests\EventStoreRequest;
+use App\Http\Requests\EventUpdateRequest;
 
 class EventController extends Controller
 {
@@ -21,7 +22,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::all();
+        $events = Event::with('tags')->get();
 
         return Inertia::render('events/index', ['events' => ['data' => $events]]);
     }
@@ -33,10 +34,12 @@ class EventController extends Controller
     {
         $countries = Country::all();
         $cities = City::all();
+        $tags = Tag::all();
 
         return Inertia::render('events/create', [
             'countries' => $countries,
             'cities' => $cities,
+            'tags' => $tags,
         ]);
     }
 
@@ -57,12 +60,26 @@ class EventController extends Controller
                 );
             }
 
-            Event::create([
+            $event = Event::create([
                 ...$request->validated(),
                 'user_id' => auth()->user()->id,
                 'image' => $imagePath,
                 'slug' => Str::slug($request->validated('title')),
             ]);
+
+            $tagIds = [];
+            foreach($request->validated('tags') as $tagName)
+            {
+                $tag = Tag::firstOrCreate(['name' => $tagName], [
+                    'name' => $tagName,
+                    'slug' => Str::slug($tagName)
+                ]);
+
+                $tagIds[] = $tag->id;
+            }
+
+            $event->tags()->attach($tagIds);
+            
         });
 
         return redirect()->route('events.index')->with('success', 'Event created successfully.');
@@ -83,11 +100,13 @@ class EventController extends Controller
     {
         $countries = Country::all();
         $cities = City::all();
+        $tags = Tag::all();
 
         return Inertia::render('events/edit', [
-            'event' => $event,
+            'event' => $event->load('tags'),
             'countries' => $countries,
             'cities' => $cities,
+            'tags' => $tags
         ]);
     }
 
@@ -120,10 +139,23 @@ class EventController extends Controller
                     null,
                     false
                 );
-
             }
 
             $event->update($data);
+            
+            if (isset($validated['tags'])) {
+                $tagIds = [];
+                foreach($validated['tags'] as $tagName) {
+                    $tag = Tag::firstOrCreate(['name' => $tagName], [
+                        'name' => $tagName,
+                        'slug' => Str::slug($tagName)
+                    ]);
+                    
+                    $tagIds[] = $tag->id;
+                }
+                
+                $event->tags()->sync($tagIds);
+            }
         });
 
         return redirect()->route('events.index')->with('success', "{$event->name} - Event updated successfully.");
